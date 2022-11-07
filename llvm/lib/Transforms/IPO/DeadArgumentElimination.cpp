@@ -16,6 +16,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "llvm/Transforms/IPO/DeadArgumentElimination.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/IR/Argument.h"
@@ -43,15 +44,13 @@
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/IPO.h"
-#include "llvm/Transforms/IPO/DeadArgumentElimination.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include <cassert>
 #include <utility>
 #include <vector>
 
-
 #include "llvm/Bitcode/BitcodeWriter.h"
-#include "llvm/Support/ToolOutputFile.h"
+#include "llvm/Support/FileSystem.h"
 
 using namespace llvm;
 
@@ -1087,16 +1086,14 @@ bool DeadArgumentEliminationPass::removeDeadStuffFromFunction(Function *F) {
 
 PreservedAnalyses DeadArgumentEliminationPass::run(Module &M,
                                                    ModuleAnalysisManager &) {
- 
+
   // write out bitcode
-  
-  //outs() << "DeadArg Elimination on " << M.getName() << "\n";
   std::string FileName = M.getSourceFileName();
-  if(FileName.find(".c") != FileName.npos){
+  if (FileName.find(".c") != FileName.npos) {
     std::string Path = M.getSourceFileName() + ".bc";
     outs() << "Writing to " << Path << "\n";
     std::error_code EC;
-    raw_fd_ostream out(Path, EC, sys::fs::F_None);
+    raw_fd_ostream out(Path, EC, sys::fs::OF_None);
     WriteBitcodeToFile(M, out);
     out.flush();
     out.close();
