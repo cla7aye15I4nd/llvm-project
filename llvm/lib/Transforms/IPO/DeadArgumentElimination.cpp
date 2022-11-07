@@ -1101,7 +1101,7 @@ PreservedAnalyses DeadArgumentEliminationPass::run(Module &M,
     WriteBitcodeToFile(M, out);
     out.flush();
     out.close();
-    outs() << "Write Done";
+    outs() << "Write Done\n";
   }
 
   bool Changed = false;
