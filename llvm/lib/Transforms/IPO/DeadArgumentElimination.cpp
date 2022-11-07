@@ -49,6 +49,10 @@
 #include <utility>
 #include <vector>
 
+
+#include "llvm/Bitcode/BitcodeWriter.h"
+#include "llvm/Support/ToolOutputFile.h"
+
 using namespace llvm;
 
 #define DEBUG_TYPE "deadargelim"
@@ -1084,6 +1088,22 @@ bool DeadArgumentEliminationPass::RemoveDeadStuffFromFunction(Function *F) {
 
 PreservedAnalyses DeadArgumentEliminationPass::run(Module &M,
                                                    ModuleAnalysisManager &) {
+ 
+  // write out bitcode
+  
+  //outs() << "DeadArg Elimination on " << M.getName() << "\n";
+  std::string FileName = M.getSourceFileName();
+  if(FileName.find(".c") != FileName.npos){
+    std::string Path = M.getSourceFileName() + ".bc";
+    outs() << "Writing to " << Path << "\n";
+    std::error_code EC;
+    raw_fd_ostream out(Path, EC, sys::fs::F_None);
+    WriteBitcodeToFile(M, out);
+    out.flush();
+    out.close();
+    outs() << "Write Done";
+  }
+
   bool Changed = false;
 
   // First pass: Do a simple check to see if any functions can have their "..."
